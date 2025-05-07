@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Collections;
 
 public enum AttackMode {
     PHYSICAL,
@@ -12,6 +13,13 @@ public struct Hitboxes {
     public GameObject heavyPhysicalAttack;
     public GameObject lightMagicAttack;
     public GameObject heavyMagicAttack;
+}
+
+[System.Serializable]
+public struct Cooldowns
+{
+    public float lightCooldown;
+    public float heavyCooldown;
 }
 
 public class MainCharacter : MonoBehaviour
@@ -27,6 +35,9 @@ public class MainCharacter : MonoBehaviour
 
     [SerializeField] protected GameObject currentLightAttack;
     [SerializeField] protected GameObject currentHeavyAttack;
+
+    [SerializeField] public Cooldowns attackCooldowns;
+    public bool attackEnabled;
 
     private void Awake() {
         rb = GetComponent<Rigidbody>();
@@ -46,6 +57,34 @@ public class MainCharacter : MonoBehaviour
         }
     }
 
+    public void LightAttacking()
+    {
+        switch (currentAttackMode)
+        {
+            case AttackMode.PHYSICAL:
+                PerfomingAttack(hitboxes.lightPhysicalAttack, attackCooldowns.lightCooldown);
+                break;
+            case AttackMode.MAGIC:
+                break;
+        }
+
+    }
+
+    private void PerfomingAttack(GameObject hitbox, float cooldown)
+    {
+        hitbox.SetActive(true);
+        attackEnabled = false;
+        StartCoroutine(WaitForCooldown(hitbox, cooldown));
+    }
+
+    IEnumerator WaitForCooldown(GameObject hitbox,float timeToWait)
+    {
+        yield return null;
+        hitbox.SetActive(false);
+        yield return new WaitForSeconds(timeToWait);
+        attackEnabled = true;
+    }
+
     public void OnMove(InputAction.CallbackContext context) {
         moveInput = context.ReadValue<Vector2>();
     }
@@ -57,5 +96,10 @@ public class MainCharacter : MonoBehaviour
         if (context.canceled) {
             moveSpeed = moveSpeed / 2f;
         }
+    }
+
+    public void OnLightAttack(InputAction.CallbackContext context)
+    {
+
     }
 }
