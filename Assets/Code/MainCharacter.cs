@@ -33,9 +33,6 @@ public class MainCharacter : MonoBehaviour
     private Rigidbody rb;
     private Vector2 moveInput;
 
-    [SerializeField] protected GameObject currentLightAttack;
-    [SerializeField] protected GameObject currentHeavyAttack;
-
     [SerializeField] public Cooldowns attackCooldowns;
     public bool attackEnabled;
 
@@ -57,17 +54,26 @@ public class MainCharacter : MonoBehaviour
         }
     }
 
-    public void LightAttacking()
-    {
-        switch (currentAttackMode)
-        {
+    public void LightAttacking() {
+        switch (currentAttackMode) {
             case AttackMode.PHYSICAL:
                 PerfomingAttack(hitboxes.lightPhysicalAttack, attackCooldowns.lightCooldown);
                 break;
             case AttackMode.MAGIC:
+                PerfomingAttack(hitboxes.lightMagicAttack, attackCooldowns.lightCooldown);
                 break;
         }
+    }
 
+    public void HeavyAttacking() {
+        switch (currentAttackMode) {
+            case AttackMode.PHYSICAL:
+                PerfomingAttack(hitboxes.heavyPhysicalAttack, attackCooldowns.heavyCooldown);
+                break;
+            case AttackMode.MAGIC:
+                PerfomingAttack(hitboxes.heavyMagicAttack, attackCooldowns.heavyCooldown);
+                break;
+        }
     }
 
     private void PerfomingAttack(GameObject hitbox, float cooldown)
@@ -79,7 +85,8 @@ public class MainCharacter : MonoBehaviour
 
     IEnumerator WaitForCooldown(GameObject hitbox,float timeToWait)
     {
-        yield return null;
+        yield return new WaitForSeconds(0.1f);
+        //yield return null;
         hitbox.SetActive(false);
         yield return new WaitForSeconds(timeToWait);
         attackEnabled = true;
@@ -98,8 +105,23 @@ public class MainCharacter : MonoBehaviour
         }
     }
 
-    public void OnLightAttack(InputAction.CallbackContext context)
-    {
+    public void OnLightAttack(InputAction.CallbackContext context) {
+        if (context.performed && attackEnabled) {
+            LightAttacking();
+        }
+    }
 
+    public void OnHeavyAttack(InputAction.CallbackContext context) {
+        if (context.performed && attackEnabled) {
+            HeavyAttacking();
+        }
+    }
+
+    public void OnChangeAttackMode(InputAction.CallbackContext context) {
+        if (context.performed) {
+            currentAttackMode = (currentAttackMode == AttackMode.PHYSICAL) ? AttackMode.MAGIC : AttackMode.PHYSICAL;
+
+            Debug.Log("Current Mode: " + currentAttackMode);
+        }
     }
 }
