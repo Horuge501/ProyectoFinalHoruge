@@ -24,6 +24,8 @@ public struct Cooldowns
 
 public class MainCharacter : MonoBehaviour
 {
+    public static MainCharacter Instance { get; private set; }
+
     [SerializeField] protected AttackMode currentAttackMode;
     [SerializeField] public Hitboxes hitboxes;
 
@@ -37,6 +39,13 @@ public class MainCharacter : MonoBehaviour
     public bool attackEnabled;
 
     private void Awake() {
+        if (Instance != null && Instance != this) {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+
         rb = GetComponent<Rigidbody>();
     }
 

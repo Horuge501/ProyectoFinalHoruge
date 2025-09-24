@@ -9,7 +9,7 @@ namespace ProceduralLevelDesign
     {
         public void ClearLevel();
         public void DeleteModule(Vector2 value);
-        public void CreateModule(Vector2 value);
+        public void CreateModule(/*Vector2 value*/);
     }
 
     #endregion
@@ -76,6 +76,16 @@ namespace ProceduralLevelDesign
         #endregion
 
         #region UnityMethods
+
+        void Awake() {
+            LevelBuilder levelBuilder = this;
+
+            levelBuilder?.CreateModule();
+            levelBuilder.CheckNeighbours();
+
+            Dungeon initialDungeon = new Dungeon() { minX = 0, maxX = levelBuilder.sizeX - 1, minY = 0, maxY = levelBuilder.sizeZ - 1 };
+            levelBuilder.BinarySpacePartition(initialDungeon, -1, PreviousCut.NONE);
+        }
 
         void OnDrawGizmos() {
             Debug.Log("Hola");
@@ -176,15 +186,15 @@ namespace ProceduralLevelDesign
                 }
             }
         }
-        public void CreateModule(Vector2 value)
+        public void CreateModule(/*Vector2 value*/)
         {
             Debug.Log("Hola");
             if (_bidimentionalMatrix == null || _bidimentionalMatrix.Length == 0 || this.transform.GetChild(0).childCount == 0) {
                 CreateMatrix();
             }
 
-            Debug.Log(this.name + " - " + gameObject.name + " CreateModule(" + value.ToString() + ")", gameObject);
-            rayFromSceneCamera = HandleUtility.GUIPointToWorldRay(value);  //Camera.main.ScreenPointToRay(value);
+            //Debug.Log(this.name + " - " + gameObject.name + " CreateModule(" + value.ToString() + ")", gameObject);
+            //rayFromSceneCamera = HandleUtility.GUIPointToWorldRay(value);  //Camera.main.ScreenPointToRay(value);
             Debug.DrawRay(rayFromSceneCamera.origin, rayFromSceneCamera.direction * 10000f, Color.green, 5f);
             if (Physics.Raycast(rayFromSceneCamera, out raycastHit, 10000f))
             {
@@ -260,6 +270,7 @@ namespace ProceduralLevelDesign
 
 
                 for (int i = dungeon.minY; i <= dungeon.maxY; i++) {
+                    if(_bidimentionalMatrix[randomCut, i].isABridge == false)
                     _bidimentionalMatrix[randomCut, i].VisibilityOfTheModule(Visibility.OFF);
                 }
 
@@ -290,12 +301,15 @@ namespace ProceduralLevelDesign
                 }
 
                 for (int i = dungeon.minX; i <= dungeon.maxX; i++) {
+                    if(_bidimentionalMatrix[i, randomCut].isABridge == false)
                     _bidimentionalMatrix[i, randomCut].VisibilityOfTheModule(Visibility.OFF);
                 }
 
                 int randomBridge = Random.Range(dungeon.minX, dungeon.maxX);
 
                 _bidimentionalMatrix[randomBridge, randomCut].VisibilityOfTheModule(Visibility.ON);
+                _bidimentionalMatrix[randomBridge, randomCut].bridgeWall.SetActive(true);
+                _bidimentionalMatrix[randomBridge, randomCut].isABridge = true;
 
                 Dungeon dungeon1 = new Dungeon() { minX = dungeon.minX, maxX = dungeon.maxX, minY = dungeon.minY, maxY = randomCut - 1 };
                 Dungeon dungeon2 = new Dungeon() { minX = dungeon.minX, maxX = dungeon.maxX, minY = randomCut + 1, maxY = dungeon.maxY };

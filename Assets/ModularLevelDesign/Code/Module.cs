@@ -37,6 +37,8 @@ namespace ProceduralLevelDesign
         [SerializeField] public Pillars pillars;
         [SerializeField] public Visibility _currentVisibility;
         protected Module moduleCandidate;
+        public GameObject bridgeWall;
+        public bool isABridge = false;
 
         public void VisibilityOfTheModule(Visibility value) {
             _currentVisibility = value;

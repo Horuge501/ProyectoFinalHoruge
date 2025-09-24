@@ -40,7 +40,7 @@ namespace ProceduralLevelDesign
             if (e.type == EventType.MouseUp && e.button == 0)
             {
                 //Method to instantiate a tile / module in the scene
-                levelBuilder?.CreateModule(e.mousePosition);
+                levelBuilder?.CreateModule(/*e.mousePosition*/);
                 levelBuilder.CheckNeighbours();
             }
             if (e.type == EventType.KeyUp && e.keyCode == KeyCode.C) {
